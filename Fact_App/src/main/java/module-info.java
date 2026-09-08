@@ -4,6 +4,6 @@ module org.example.fact_app {
     requires static lombok;
 
 
-    opens org.example.fact_app to javafx.fxml;
+    opens org.example.fact_app.controller to javafx.fxml;
     exports org.example.fact_app;
 }
