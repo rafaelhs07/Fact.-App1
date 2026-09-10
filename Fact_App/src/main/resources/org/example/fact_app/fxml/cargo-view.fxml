@@ -1,131 +1,174 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="500.0"
-            prefWidth="750.0"
-            xmlns="http://javafx.com/javafx/17.0.12"
+<BorderPane prefHeight="620.0"
+            prefWidth="950.0"
+            xmlns="http://javafx.com/javafx/21"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="org.example.fact_app.controller.CargoController">
 
     <top>
         <HBox alignment="CENTER_LEFT"
-              spacing="15.0"
               style="-fx-background-color: #2b2b2b; -fx-padding: 15;">
-            <children>
-                <Label text="Gestión de Cargos" textFill="WHITE">
-                    <font>
-                        <Font name="System Bold" size="18.0"/>
-                    </font>
-                </Label>
-            </children>
+
+            <Label text="Gestión de Cargos" textFill="WHITE">
+                <font>
+                    <Font name="System Bold" size="18.0"/>
+                </font>
+            </Label>
+
         </HBox>
     </top>
 
     <center>
         <HBox spacing="20.0">
+
             <padding>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                <Insets top="15" right="15" bottom="15" left="15"/>
             </padding>
 
-            <children>
-                <!-- Panel izquierdo: formulario -->
-                <VBox prefWidth="280.0" spacing="15.0">
+            <!-- Formulario de cargos -->
+            <VBox minWidth="280.0"
+                  prefWidth="280.0"
+                  spacing="15.0">
+
+                <GridPane hgap="10.0" vgap="12.0">
+
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="60.0"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+
                     <children>
-                        <GridPane hgap="10.0" vgap="12.0">
-                            <columnConstraints>
-                                <ColumnConstraints minWidth="60.0"/>
-                                <ColumnConstraints hgrow="ALWAYS"/>
-                            </columnConstraints>
+                        <Label text="ID:"/>
 
-                            <children>
-                                <Label text="ID:"/>
+                        <TextField fx:id="txtId"
+                                   disable="true"
+                                   promptText="Autogenerado"
+                                   GridPane.columnIndex="1"/>
 
-                                <TextField fx:id="txtId"
-                                           disable="true"
-                                           promptText="Autogenerado"
-                                           GridPane.columnIndex="1"/>
+                        <Label text="Nombre:"
+                               GridPane.rowIndex="1"/>
 
-                                <Label text="Nombre:"
-                                       GridPane.rowIndex="1"/>
-
-                                <TextField fx:id="txtNombre"
-                                           promptText="Ej. Administrador"
-                                           GridPane.columnIndex="1"
-                                           GridPane.rowIndex="1"/>
-                            </children>
-
-                            <rowConstraints>
-                                <RowConstraints/>
-                                <RowConstraints/>
-                                <RowConstraints/>
-                            </rowConstraints>
-                        </GridPane>
-
-                        <!-- Botones de acción -->
-                        <VBox spacing="8.0">
-                            <children>
-                                <HBox spacing="10.0">
-                                    <children>
-                                        <Button fx:id="btnGuardar"
-                                                maxWidth="Infinity"
-                                                onAction="#onGuardar"
-                                                text="Guardar"
-                                                HBox.hgrow="ALWAYS"/>
-
-                                        <Button fx:id="btnActualizar"
-                                                maxWidth="Infinity"
-                                                onAction="#onActualizar"
-                                                text="Modificar"
-                                                HBox.hgrow="ALWAYS"/>
-                                    </children>
-                                </HBox>
-
-                                <HBox spacing="10.0">
-                                    <children>
-                                        <Button fx:id="btnEliminar"
-                                                maxWidth="Infinity"
-                                                onAction="#onEliminar"
-                                                text="Eliminar"
-                                                HBox.hgrow="ALWAYS"/>
-
-                                        <Button fx:id="btnLimpiar"
-                                                maxWidth="Infinity"
-                                                onAction="#onLimpiar"
-                                                text="Limpiar"
-                                                HBox.hgrow="ALWAYS"/>
-                                    </children>
-                                </HBox>
-
-                                <Button fx:id="btnVolver"
-                                        maxWidth="Infinity"
-                                        onAction="#onVolver"
-                                        text="← Volver al Menú"/>
-                            </children>
-                        </VBox>
+                        <TextField fx:id="txtNombre"
+                                   promptText="Ej. Administrador"
+                                   GridPane.columnIndex="1"
+                                   GridPane.rowIndex="1"/>
                     </children>
+
+                </GridPane>
+
+                <VBox spacing="8.0">
+
+                    <HBox spacing="10.0">
+                        <Button text="Guardar"
+                                maxWidth="Infinity"
+                                onAction="#onGuardar"
+                                HBox.hgrow="ALWAYS"/>
+
+                        <Button text="Modificar"
+                                maxWidth="Infinity"
+                                onAction="#onActualizar"
+                                HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                    <HBox spacing="10.0">
+                        <Button text="Eliminar"
+                                maxWidth="Infinity"
+                                onAction="#onEliminar"
+                                HBox.hgrow="ALWAYS"/>
+
+                        <Button text="Limpiar"
+                                maxWidth="Infinity"
+                                onAction="#onLimpiar"
+                                HBox.hgrow="ALWAYS"/>
+                    </HBox>
+
+                    <Separator/>
+
+                    <Button text="Asignar cargo a persona"
+                            maxWidth="Infinity"
+                            onAction="#onAsignarPersona"/>
+
+                    <Label text="Selecciona un cargo de la tabla antes de asignarlo."
+                           wrapText="true"
+                           style="-fx-text-fill: #666666;"/>
+
+                    <Button text="← Volver al Menú"
+                            maxWidth="Infinity"
+                            onAction="#onVolver"/>
+
                 </VBox>
 
-                <!-- Panel derecho: tabla de registros -->
-                <TableView fx:id="tblDatos" HBox.hgrow="ALWAYS">
+            </VBox>
+
+            <!-- Tablas -->
+            <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+
+                <Label text="Cargos disponibles"
+                       style="-fx-font-weight: bold;"/>
+
+                <TableView fx:id="tblDatos"
+                           prefHeight="200.0"
+                           VBox.vgrow="ALWAYS">
+
                     <columns>
                         <TableColumn fx:id="colId"
-                                     prefWidth="60.0"
-                                     text="ID"/>
+                                     text="ID"
+                                     prefWidth="65.0"/>
 
                         <TableColumn fx:id="colNombre"
-                                     prefWidth="150.0"
-                                     text="Nombre"/>
+                                     text="Nombre del cargo"
+                                     prefWidth="350.0"/>
                     </columns>
+
+                    <placeholder>
+                        <Label text="No hay cargos registrados."/>
+                    </placeholder>
 
                     <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
                     </columnResizePolicy>
+
                 </TableView>
-            </children>
+
+                <Label text="Personas y cargos asignados"
+                       style="-fx-font-weight: bold;"/>
+
+                <TableView fx:id="tblPersonas"
+                           prefHeight="230.0"
+                           VBox.vgrow="ALWAYS">
+
+                    <columns>
+                        <TableColumn fx:id="colPersonaNombre"
+                                     text="Nombre completo"
+                                     prefWidth="220.0"/>
+
+                        <TableColumn fx:id="colPersonaCargo"
+                                     text="Cargo"
+                                     prefWidth="160.0"/>
+
+                        <TableColumn fx:id="colPersonaFecha"
+                                     text="Contratación"
+                                     prefWidth="120.0"/>
+                    </columns>
+
+                    <placeholder>
+                        <Label text="No hay personas con cargos asignados."/>
+                    </placeholder>
+
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/>
+                    </columnResizePolicy>
+
+                </TableView>
+
+            </VBox>
+
         </HBox>
     </center>
 

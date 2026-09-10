@@ -1,53 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
 
-<BorderPane prefWidth="900.0"
-            prefHeight="600.0"
-            xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.fact_app.controller.MenuPrincipalController"
-            style="-fx-background-color: #f4f4f4;">
+<BorderPane prefHeight="600.0" prefWidth="900.0" style="-fx-background-color: #f4f4f4;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.fact_app.controller.MenuPrincipalController">
 
     <top>
         <VBox>
 
+            <!-- Menú superior -->
             <MenuBar>
                 <menus>
 
                     <Menu text="Archivo">
                         <items>
-                            <MenuItem text="Salir" onAction="#salir"/>
+                            <MenuItem onAction="#salir" text="Salir" />
                         </items>
                     </Menu>
 
                     <Menu text="Catálogos">
                         <items>
-                            <MenuItem text="Productos"
-                                      onAction="#abrirProductos"/>
+                            <MenuItem onAction="#abrirProductos" text="Productos" />
 
-                            <MenuItem text="Categorías"
-                                      onAction="#abrirCategorias"/>
+                            <MenuItem onAction="#abrirCategorias" text="Categorías" />
 
-                            <MenuItem text="Cargos"
-                                      onAction="#abrirCargos"/>
+                            <MenuItem onAction="#abrirCargos" text="Cargos" />
                         </items>
                     </Menu>
 
                 </menus>
             </MenuBar>
 
-            <ToolBar>
+            <!-- Barra de herramientas con iconos -->
+            <ToolBar style="-fx-padding: 10;">
                 <items>
 
-                    <Button text="Productos" onAction="#abrirProductos"/>
-                    <Button text="Categorías" onAction="#abrirCategorias"/>
-                    <Button text="Cargos" onAction="#abrirCargos"/>
+                    <!-- Productos: caja -->
+                    <Button fx:id="btnProductos" accessibleText="Productos" onAction="#abrirProductos" prefHeight="50.0" prefWidth="50.0" style="-fx-cursor: hand;">
 
-                    <Separator orientation="VERTICAL"/>
+                        <graphic>
+                            <SVGPath content="M16 0 L32 8 L16 16 L0 8 Z                                               M0 11 L14 18 L14 32 L0 24 Z                                               M18 18 L32 11 L32 24 L18 32 Z" fill="#3b658a" />
+                        </graphic>
 
-                    <Button text="Salir" onAction="#salir"/>
+                        <tooltip>
+                            <Tooltip text="Productos" />
+                        </tooltip>
+
+                    </Button>
+
+                    <!-- Categorías: cuatro cuadros -->
+                    <Button fx:id="btnCategorias" accessibleText="Categorías" onAction="#abrirCategorias" prefHeight="50.0" prefWidth="50.0" style="-fx-cursor: hand;">
+
+                        <graphic>
+                            <SVGPath content="M0 0 H14 V14 H0 Z                                               M18 0 H32 V14 H18 Z                                               M0 18 H14 V32 H0 Z                                               M18 18 H32 V32 H18 Z" fill="#4e8065" />
+                        </graphic>
+
+                        <tooltip>
+                            <Tooltip text="Categorías" />
+                        </tooltip>
+
+                    </Button>
+
+                    <!-- Cargos: persona -->
+                    <Button fx:id="btnCargos" accessibleText="Cargos y personas" onAction="#abrirCargos" prefHeight="50.0" prefWidth="50.0" style="-fx-cursor: hand;">
+
+                        <graphic>
+                            <SVGPath content="M16 0                                               A7 7 0 1 1 16 14                                               A7 7 0 1 1 16 0 Z                                               M0 32                                               C0 21 6 17 16 17                                               C26 17 32 21 32 32 Z" fill="#80649b" />
+                        </graphic>
+
+                        <tooltip>
+                            <Tooltip text="Cargos y personas" />
+                        </tooltip>
+
+                    </Button>
+
+                    <Separator orientation="VERTICAL" />
+
+                    <!-- Salir: puerta con flecha -->
+                    <Button fx:id="btnSalir" accessibleText="Salir" onAction="#salir" prefHeight="50.0" prefWidth="50.0" style="-fx-cursor: hand;">
+
+                        <graphic>
+                            <SVGPath content="M0 0 H18 V7 H14 V4 H4                                               V28 H14 V25 H18 V32 H0 Z                                               M19 7 L32 16 L19 25                                               V19 H9 V13 H19 Z" fill="#ad5050" />
+                        </graphic>
+
+                        <tooltip>
+                            <Tooltip text="Salir de la aplicación" />
+                        </tooltip>
+
+                    </Button>
 
                 </items>
             </ToolBar>
@@ -56,15 +98,19 @@
     </top>
 
     <center>
-        <VBox alignment="CENTER" spacing="12.0">
+        <VBox alignment="CENTER" spacing="18.0">
 
-            <Label text="Sistema de facturación"
-                   style="-fx-font-size: 28px;
-                          -fx-font-weight: bold;
-                          -fx-text-fill: #2b2b2b;"/>
+            <Label style="-fx-font-size: 28px;                       -fx-font-weight: bold;                       -fx-text-fill: #2b2b2b;" text="Sistema de facturación" />
 
-            <Label text="Selecciona un formulario en el menú superior."
-                   style="-fx-font-size: 14px;"/>
+            <ImageView fitHeight="237.0" fitWidth="405.0" preserveRatio="true" smooth="true">
+
+                <image>
+                    <Image url="@../images/logo.png" />
+                </image>
+
+            </ImageView>
+
+            <Label style="-fx-font-size: 14px;" text="Selecciona una opción del menú o de la barra de herramientas." />
 
         </VBox>
     </center>
