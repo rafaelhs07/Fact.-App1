@@ -1,14 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="CONTROLLER_NAME"
-            prefHeight="400.0" prefWidth="600.0">
+<BorderPane prefWidth="900.0"
+            prefHeight="600.0"
+            xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.example.fact_app.controller.MenuPrincipalController"
+            style="-fx-background-color: #f4f4f4;">
 
-</AnchorPane>
+    <top>
+        <VBox>
+
+            <MenuBar>
+                <menus>
+
+                    <Menu text="Archivo">
+                        <items>
+                            <MenuItem text="Salir" onAction="#salir"/>
+                        </items>
+                    </Menu>
+
+                    <Menu text="Catálogos">
+                        <items>
+                            <MenuItem text="Productos"
+                                      onAction="#abrirProductos"/>
+
+                            <MenuItem text="Categorías"
+                                      onAction="#abrirCategorias"/>
+
+                            <MenuItem text="Cargos"
+                                      onAction="#abrirCargos"/>
+                        </items>
+                    </Menu>
+
+                </menus>
+            </MenuBar>
+
+            <ToolBar>
+                <items>
+
+                    <Button text="Productos" onAction="#abrirProductos"/>
+                    <Button text="Categorías" onAction="#abrirCategorias"/>
+                    <Button text="Cargos" onAction="#abrirCargos"/>
+
+                    <Separator orientation="VERTICAL"/>
+
+                    <Button text="Salir" onAction="#salir"/>
+
+                </items>
+            </ToolBar>
+
+        </VBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="12.0">
+
+            <Label text="Sistema de facturación"
+                   style="-fx-font-size: 28px;
+                          -fx-font-weight: bold;
+                          -fx-text-fill: #2b2b2b;"/>
+
+            <Label text="Selecciona un formulario en el menú superior."
+                   style="-fx-font-size: 14px;"/>
+
+        </VBox>
+    </center>
+
+</BorderPane>
