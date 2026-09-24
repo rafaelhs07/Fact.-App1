@@ -37,17 +37,14 @@ public class ProductoController {
     @FXML private TableColumn<Producto, Integer> colExistencia;
     @FXML private TableColumn<Producto, Boolean> colActivo;
 
-    // Se mantiene estática por si CategoriaController la necesita, aunque idealmente se debería consultar la BD
     private static final ObservableList<Producto> productos = FXCollections.observableArrayList();
     private String rutaImagen;
 
-    // Instancias de los DAO para la base de datos
     private CategoriaDAO categoriaDAO = new CategoriaDAO();
     private ProductoDAO productoDAO = new ProductoDAO();
 
     @FXML
     private void initialize() {
-        // Paso 11: Cargar categorías desde PostgreSQL usando el DAO
         cargarCategorias();
 
         colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
@@ -74,11 +71,19 @@ public class ProductoController {
 
         tblProductos.setItems(productos);
         chkActivo.setSelected(true);
+
+        cargarDatos();
     }
 
     private void cargarCategorias() {
         List<Categoria> listaCategorias = categoriaDAO.listar();
         cmbCategoria.setItems(FXCollections.observableArrayList(listaCategorias));
+    }
+
+    // Nuevo método para llenar la tabla desde PostgreSQL
+    private void cargarDatos() {
+        List<Producto> listaBD = productoDAO.listar();
+        productos.setAll(listaBD);
     }
 
     public static boolean categoriaEnUso(Categoria categoria) {
@@ -172,9 +177,7 @@ public class ProductoController {
                 return;
             }
 
-            // Paso 12: Preparar el objeto para enviarlo a PostgreSQL a través del DAO
             Producto producto = new Producto();
-            // No asignamos ID porque es un campo SERIAL que genera PostgreSQL
             producto.setCodigo(codigo);
             producto.setNombre(nombre);
             producto.setCategoria(cmbCategoria.getValue());
@@ -183,12 +186,11 @@ public class ProductoController {
             producto.setRutaImagen(rutaImagen);
             producto.setActivo(chkActivo.isSelected());
 
-            // Guardar en la base de datos
             boolean exito = productoDAO.guardar(producto);
 
             if (exito) {
-                // Paso 13: Mostrar productos en el TableView
-                productos.add(producto);
+                // Recargamos todo desde la base de datos para que la tabla obtenga el ID autogenerado
+                cargarDatos();
                 limpiar();
                 mensaje(Alert.AlertType.INFORMATION, "Producto guardado correctamente en la base de datos.");
             } else {

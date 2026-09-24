@@ -1,11 +1,15 @@
 package org.example.fact_app.dao;
 
+import org.example.fact_app.model.Categoria;
 import org.example.fact_app.model.Producto;
 import org.example.fact_app.util.DatabaseConnection;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductoDAO {
 
@@ -34,5 +38,47 @@ public class ProductoDAO {
             System.err.println("Error al guardar el producto: " + e.getMessage());
             return false;
         }
+    }
+
+
+    public List<Producto> listar() {
+        List<Producto> lista = new ArrayList<>();
+        String sql = """
+            SELECT p.id, p.codigo, p.nombre, p.categoria_id, p.precio_venta, p.existencia, p.ruta_imagen, p.activo,
+                   c.nombre as categoria_nombre, c.activa as categoria_activa
+            FROM producto p
+            INNER JOIN categoria c ON p.categoria_id = c.id
+            """;
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+
+                Categoria categoria = new Categoria();
+                categoria.setId(rs.getInt("categoria_id"));
+                categoria.setNombre(rs.getString("categoria_nombre"));
+                categoria.setActiva(rs.getBoolean("categoria_activa"));
+
+                // Instanciamos y poblamos el producto
+                Producto producto = new Producto();
+                producto.setId(rs.getInt("id"));
+                producto.setCodigo(rs.getString("codigo"));
+                producto.setNombre(rs.getString("nombre"));
+                producto.setCategoria(categoria);
+                producto.setPrecioVenta(rs.getBigDecimal("precio_venta"));
+                producto.setExistencia(rs.getInt("existencia"));
+                producto.setRutaImagen(rs.getString("ruta_imagen"));
+                producto.setActivo(rs.getBoolean("activo"));
+
+                lista.add(producto);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error al listar los productos: " + e.getMessage());
+        }
+
+        return lista;
     }
 }
