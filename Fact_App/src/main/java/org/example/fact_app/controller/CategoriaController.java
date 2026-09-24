@@ -6,7 +6,10 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
+import org.example.fact_app.dao.CategoriaDAO;
 import org.example.fact_app.model.Categoria;
+
+import java.util.List;
 
 public class CategoriaController {
 
@@ -19,28 +22,23 @@ public class CategoriaController {
     @FXML private TableColumn<Categoria, String> colNombre;
     @FXML private TableColumn<Categoria, String> colDescripcion;
 
-    private static final ObservableList<Categoria> categorias =
-            FXCollections.observableArrayList(
-                    new Categoria(1, "Alimentos", true),
-                    new Categoria(2, "Bebidas", true),
-                    new Categoria(3, "Limpieza", true)
-            );
+    // Instancia del DAO para operaciones en BD
+    private CategoriaDAO categoriaDAO = new CategoriaDAO();
+    private ObservableList<Categoria> categoriasLista = FXCollections.observableArrayList();
 
-    private static int siguienteId = 4;
-
+    // Ahora este método estático consulta la base de datos para otros controladores
     public static ObservableList<Categoria> getCategorias() {
-        return categorias;
+        return FXCollections.observableArrayList(new CategoriaDAO().listar());
     }
 
     @FXML
     private void initialize() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
-        colDescripcion.setCellValueFactory(
-                new PropertyValueFactory<>("descripcion")
-        );
+        // Seguirá funcionando en la interfaz si lo tienes en la clase, aunque no se guarde en BD
+        colDescripcion.setCellValueFactory(new PropertyValueFactory<>("descripcion"));
 
-        tblCategorias.setItems(categorias);
+        cargarDatos();
 
         tblCategorias.getSelectionModel()
                 .selectedItemProperty()
@@ -48,16 +46,27 @@ public class CategoriaController {
                     if (seleccionada != null) {
                         txtId.setText(String.valueOf(seleccionada.getId()));
                         txtNombre.setText(seleccionada.getNombre());
-                        txtDescripcion.setText(seleccionada.getDescripcion());
+                        // Validar si getDescripcion existe en tu modelo para evitar errores
+                        if (seleccionada.getDescripcion() != null) {
+                            txtDescripcion.setText(seleccionada.getDescripcion());
+                        } else {
+                            txtDescripcion.clear();
+                        }
                     }
                 });
+    }
+
+    // Método para refrescar el TableView desde la BD
+    private void cargarDatos() {
+        List<Categoria> lista = categoriaDAO.listar();
+        categoriasLista.setAll(lista);
+        tblCategorias.setItems(categoriasLista);
     }
 
     @FXML
     private void onGuardar() {
         if (tblCategorias.getSelectionModel().getSelectedItem() != null) {
-            mensaje("Pulsa Limpiar para crear otra categoría "
-                    + "o Modificar para actualizar la seleccionada.");
+            mensaje("Pulsa Limpiar para crear otra categoría o Modificar para actualizar la seleccionada.");
             return;
         }
 
@@ -65,21 +74,23 @@ public class CategoriaController {
             return;
         }
 
-        Categoria categoria = new Categoria(
-                siguienteId++,
-                txtNombre.getText().trim(),
-                true,
-                txtDescripcion.getText().trim()
-        );
+        // Ya no mandamos ID, PostgreSQL lo autogenerará
+        Categoria categoria = new Categoria();
+        categoria.setNombre(txtNombre.getText().trim());
+        categoria.setActiva(true);
+        categoria.setDescripcion(txtDescripcion.getText().trim());
 
-        categorias.add(categoria);
-        onLimpiar();
+        if (categoriaDAO.guardar(categoria)) {
+            cargarDatos(); // Refrescamos la tabla
+            onLimpiar();
+        } else {
+            mensaje("Error al guardar en la base de datos.");
+        }
     }
 
     @FXML
     private void onActualizar() {
-        Categoria seleccionada =
-                tblCategorias.getSelectionModel().getSelectedItem();
+        Categoria seleccionada = tblCategorias.getSelectionModel().getSelectedItem();
 
         if (seleccionada == null) {
             mensaje("Selecciona una categoría en la tabla.");
@@ -93,23 +104,20 @@ public class CategoriaController {
         seleccionada.setNombre(txtNombre.getText().trim());
         seleccionada.setDescripcion(txtDescripcion.getText().trim());
 
-        tblCategorias.refresh();
-        onLimpiar();
+        if (categoriaDAO.actualizar(seleccionada)) {
+            cargarDatos();
+            onLimpiar();
+        } else {
+            mensaje("Error al actualizar en la base de datos.");
+        }
     }
 
     @FXML
     private void onEliminar() {
-        Categoria seleccionada =
-                tblCategorias.getSelectionModel().getSelectedItem();
+        Categoria seleccionada = tblCategorias.getSelectionModel().getSelectedItem();
 
         if (seleccionada == null) {
             mensaje("Selecciona una categoría en la tabla.");
-            return;
-        }
-
-        if (ProductoController.categoriaEnUso(seleccionada)) {
-            mensaje("No puedes eliminar una categoría "
-                    + "que está asignada a productos.");
             return;
         }
 
@@ -121,10 +129,14 @@ public class CategoriaController {
         );
         confirmacion.setHeaderText(null);
 
-        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL)
-                == ButtonType.OK) {
-            categorias.remove(seleccionada);
-            onLimpiar();
+        if (confirmacion.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK) {
+
+            if (categoriaDAO.eliminar(seleccionada.getId())) {
+                cargarDatos();
+                onLimpiar();
+            } else {
+                mensaje("No se pudo eliminar. Es muy probable que esta categoría esté siendo usada por un producto registrado.");
+            }
         }
     }
 
@@ -150,10 +162,9 @@ public class CategoriaController {
             return false;
         }
 
-        boolean repetida = categorias.stream()
+        boolean repetida = categoriasLista.stream()
                 .anyMatch(categoria ->
-                        categoria != actual
-                                && categoria.getNombre().equalsIgnoreCase(nombre)
+                        categoria != actual && categoria.getNombre().equalsIgnoreCase(nombre)
                 );
 
         if (repetida) {
