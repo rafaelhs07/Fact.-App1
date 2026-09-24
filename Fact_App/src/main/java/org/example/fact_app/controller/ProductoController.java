@@ -9,11 +9,14 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.example.fact_app.dao.CategoriaDAO;
+import org.example.fact_app.dao.ProductoDAO;
 import org.example.fact_app.model.Categoria;
 import org.example.fact_app.model.Producto;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ProductoController {
 
@@ -34,35 +37,25 @@ public class ProductoController {
     @FXML private TableColumn<Producto, Integer> colExistencia;
     @FXML private TableColumn<Producto, Boolean> colActivo;
 
-    private static final ObservableList<Producto> productos =
-            FXCollections.observableArrayList();
-
-    private static int siguienteId = 1;
-
+    // Se mantiene estática por si CategoriaController la necesita, aunque idealmente se debería consultar la BD
+    private static final ObservableList<Producto> productos = FXCollections.observableArrayList();
     private String rutaImagen;
+
+    // Instancias de los DAO para la base de datos
+    private CategoriaDAO categoriaDAO = new CategoriaDAO();
+    private ProductoDAO productoDAO = new ProductoDAO();
 
     @FXML
     private void initialize() {
-        cmbCategoria.setItems(CategoriaController.getCategorias());
+        // Paso 11: Cargar categorías desde PostgreSQL usando el DAO
+        cargarCategorias();
 
-        colCodigo.setCellValueFactory(
-                new PropertyValueFactory<>("codigo")
-        );
-        colNombre.setCellValueFactory(
-                new PropertyValueFactory<>("nombre")
-        );
-        colCategoria.setCellValueFactory(
-                new PropertyValueFactory<>("categoria")
-        );
-        colPrecio.setCellValueFactory(
-                new PropertyValueFactory<>("precioVenta")
-        );
-        colExistencia.setCellValueFactory(
-                new PropertyValueFactory<>("existencia")
-        );
-        colActivo.setCellValueFactory(
-                new PropertyValueFactory<>("activo")
-        );
+        colCodigo.setCellValueFactory(new PropertyValueFactory<>("codigo"));
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        colCategoria.setCellValueFactory(new PropertyValueFactory<>("categoria"));
+        colPrecio.setCellValueFactory(new PropertyValueFactory<>("precioVenta"));
+        colExistencia.setCellValueFactory(new PropertyValueFactory<>("existencia"));
+        colActivo.setCellValueFactory(new PropertyValueFactory<>("activo"));
 
         colActivo.setCellFactory(columna ->
                 new TableCell<Producto, Boolean>() {
@@ -81,6 +74,11 @@ public class ProductoController {
 
         tblProductos.setItems(productos);
         chkActivo.setSelected(true);
+    }
+
+    private void cargarCategorias() {
+        List<Categoria> listaCategorias = categoriaDAO.listar();
+        cmbCategoria.setItems(FXCollections.observableArrayList(listaCategorias));
     }
 
     public static boolean categoriaEnUso(Categoria categoria) {
@@ -164,11 +162,8 @@ public class ProductoController {
         }
 
         try {
-            BigDecimal precio =
-                    new BigDecimal(txtPrecio.getText().trim());
-
-            int existencia =
-                    Integer.parseInt(txtExistencia.getText().trim());
+            BigDecimal precio = new BigDecimal(txtPrecio.getText().trim());
+            int existencia = Integer.parseInt(txtExistencia.getText().trim());
 
             if (precio.signum() <= 0 || existencia < 0) {
                 mensaje(Alert.AlertType.WARNING,
@@ -177,22 +172,28 @@ public class ProductoController {
                 return;
             }
 
-            Producto producto = new Producto(
-                    siguienteId++,
-                    codigo,
-                    nombre,
-                    cmbCategoria.getValue(),
-                    precio,
-                    existencia,
-                    rutaImagen,
-                    chkActivo.isSelected()
-            );
+            // Paso 12: Preparar el objeto para enviarlo a PostgreSQL a través del DAO
+            Producto producto = new Producto();
+            // No asignamos ID porque es un campo SERIAL que genera PostgreSQL
+            producto.setCodigo(codigo);
+            producto.setNombre(nombre);
+            producto.setCategoria(cmbCategoria.getValue());
+            producto.setPrecioVenta(precio);
+            producto.setExistencia(existencia);
+            producto.setRutaImagen(rutaImagen);
+            producto.setActivo(chkActivo.isSelected());
 
-            productos.add(producto);
-            limpiar();
+            // Guardar en la base de datos
+            boolean exito = productoDAO.guardar(producto);
 
-            mensaje(Alert.AlertType.INFORMATION,
-                    "Producto agregado correctamente.");
+            if (exito) {
+                // Paso 13: Mostrar productos en el TableView
+                productos.add(producto);
+                limpiar();
+                mensaje(Alert.AlertType.INFORMATION, "Producto guardado correctamente en la base de datos.");
+            } else {
+                mensaje(Alert.AlertType.ERROR, "No se pudo guardar el producto en la base de datos.");
+            }
 
         } catch (NumberFormatException e) {
             mensaje(Alert.AlertType.ERROR,
