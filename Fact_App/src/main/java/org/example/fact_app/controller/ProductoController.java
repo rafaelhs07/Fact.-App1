@@ -2,6 +2,8 @@ package org.example.fact_app.controller;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -25,6 +27,7 @@ public class ProductoController {
     @FXML private TextField txtNombre;
     @FXML private TextField txtPrecio;
     @FXML private TextField txtExistencia;
+    @FXML private TextField txtBuscar; // Nuevo campo para búsqueda
 
     @FXML private ComboBox<Categoria> cmbCategoria;
     @FXML private CheckBox chkActivo;
@@ -39,8 +42,9 @@ public class ProductoController {
     @FXML private TableColumn<Producto, Boolean> colActivo;
 
     private static final ObservableList<Producto> productos = FXCollections.observableArrayList();
-    private String rutaImagen;
+    private FilteredList<Producto> productosFiltrados; // Lista filtrada para la búsqueda
 
+    private String rutaImagen;
     private CategoriaDAO categoriaDAO = new CategoriaDAO();
     private ProductoDAO productoDAO = new ProductoDAO();
 
@@ -70,9 +74,33 @@ public class ProductoController {
                 }
         );
 
-        tblProductos.setItems(productos);
-        chkActivo.setSelected(true);
+        // Configuración de la búsqueda con FilteredList y SortedList
+        productosFiltrados = new FilteredList<>(productos, p -> true);
 
+        txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
+            productosFiltrados.setPredicate(producto -> {
+                // Si el buscador está vacío, muestra todos los productos
+                if (newValue == null || newValue.trim().isEmpty()) {
+                    return true;
+                }
+
+                String lowerCaseFilter = newValue.toLowerCase().trim();
+
+                // Compara el filtro con el código o con el nombre del producto (Ignora mayúsculas/minúsculas)
+                if (producto.getCodigo() != null && producto.getCodigo().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                } else if (producto.getNombre() != null && producto.getNombre().toLowerCase().contains(lowerCaseFilter)) {
+                    return true;
+                }
+                return false; // No coincide
+            });
+        });
+
+        SortedList<Producto> productosOrdenados = new SortedList<>(productosFiltrados);
+        productosOrdenados.comparatorProperty().bind(tblProductos.comparatorProperty());
+        tblProductos.setItems(productosOrdenados);
+
+        chkActivo.setSelected(true);
         cargarDatos();
     }
 
@@ -203,7 +231,6 @@ public class ProductoController {
         }
     }
 
-    // --- NUEVO MÉTODO DE ELIMINAR AGREGADO ---
     @FXML
     private void eliminar() {
         Producto productoSeleccionado = tblProductos.getSelectionModel().getSelectedItem();
