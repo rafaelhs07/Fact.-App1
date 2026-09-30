@@ -17,6 +17,7 @@ import org.example.fact_app.model.Producto;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 public class ProductoController {
 
@@ -80,7 +81,6 @@ public class ProductoController {
         cmbCategoria.setItems(FXCollections.observableArrayList(listaCategorias));
     }
 
-    // Nuevo método para llenar la tabla desde PostgreSQL
     private void cargarDatos() {
         List<Producto> listaBD = productoDAO.listar();
         productos.setAll(listaBD);
@@ -189,7 +189,6 @@ public class ProductoController {
             boolean exito = productoDAO.guardar(producto);
 
             if (exito) {
-                // Recargamos todo desde la base de datos para que la tabla obtenga el ID autogenerado
                 cargarDatos();
                 limpiar();
                 mensaje(Alert.AlertType.INFORMATION, "Producto guardado correctamente en la base de datos.");
@@ -201,6 +200,35 @@ public class ProductoController {
             mensaje(Alert.AlertType.ERROR,
                     "Ingrese un precio válido, por ejemplo 150.00, "
                             + "y una existencia entera, por ejemplo 10.");
+        }
+    }
+
+    // --- NUEVO MÉTODO DE ELIMINAR AGREGADO ---
+    @FXML
+    private void eliminar() {
+        Producto productoSeleccionado = tblProductos.getSelectionModel().getSelectedItem();
+
+        if (productoSeleccionado == null) {
+            mensaje(Alert.AlertType.WARNING, "Por favor, seleccione un producto de la tabla para eliminar.");
+            return;
+        }
+
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Eliminación");
+        confirmacion.setHeaderText(null);
+        confirmacion.setContentText("¿Está seguro de eliminar el producto: " + productoSeleccionado.getNombre() + "?");
+
+        Optional<ButtonType> resultado = confirmacion.showAndWait();
+        if (resultado.isPresent() && resultado.get() == ButtonType.OK) {
+            boolean eliminadoBD = productoDAO.eliminar(productoSeleccionado.getId());
+
+            if (eliminadoBD) {
+                productos.remove(productoSeleccionado);
+                limpiar();
+                mensaje(Alert.AlertType.INFORMATION, "Producto eliminado correctamente de la base de datos.");
+            } else {
+                mensaje(Alert.AlertType.ERROR, "No se pudo eliminar el producto de la base de datos.");
+            }
         }
     }
 

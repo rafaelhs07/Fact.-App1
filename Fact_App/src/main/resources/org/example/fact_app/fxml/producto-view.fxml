@@ -134,6 +134,13 @@
                             maxWidth="Infinity"
                             onAction="#guardar"/>
 
+                    <!-- Botón de Eliminar agregado -->
+                    <Button fx:id="btnEliminar"
+                            text="Eliminar"
+                            maxWidth="Infinity"
+                            style="-fx-background-color: #c0392b; -fx-text-fill: white;"
+                            onAction="#eliminar"/>
+
                     <Button fx:id="btnCerrar"
                             text="← Volver al Menú"
                             maxWidth="Infinity"

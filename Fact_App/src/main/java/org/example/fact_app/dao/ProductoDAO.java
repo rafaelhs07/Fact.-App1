@@ -40,7 +40,6 @@ public class ProductoDAO {
         }
     }
 
-
     public List<Producto> listar() {
         List<Producto> lista = new ArrayList<>();
         String sql = """
@@ -61,7 +60,6 @@ public class ProductoDAO {
                 categoria.setNombre(rs.getString("categoria_nombre"));
                 categoria.setActiva(rs.getBoolean("categoria_activa"));
 
-                // Instanciamos y poblamos el producto
                 Producto producto = new Producto();
                 producto.setId(rs.getInt("id"));
                 producto.setCodigo(rs.getString("codigo"));
@@ -80,5 +78,22 @@ public class ProductoDAO {
         }
 
         return lista;
+    }
+
+    // --- NUEVO MÉTODO AGREGADO PARA ELIMINAR ---
+    public boolean eliminar(int id) {
+        String sql = "DELETE FROM producto WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            int filasAfectadas = ps.executeUpdate();
+            return filasAfectadas > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Error al eliminar el producto: " + e.getMessage());
+            return false;
+        }
     }
 }
