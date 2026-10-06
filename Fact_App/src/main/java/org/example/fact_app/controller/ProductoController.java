@@ -27,7 +27,7 @@ public class ProductoController {
     @FXML private TextField txtNombre;
     @FXML private TextField txtPrecio;
     @FXML private TextField txtExistencia;
-    @FXML private TextField txtBuscar; // Nuevo campo para búsqueda
+    @FXML private TextField txtBuscar; 
 
     @FXML private ComboBox<Categoria> cmbCategoria;
     @FXML private CheckBox chkActivo;
@@ -42,7 +42,7 @@ public class ProductoController {
     @FXML private TableColumn<Producto, Boolean> colActivo;
 
     private static final ObservableList<Producto> productos = FXCollections.observableArrayList();
-    private FilteredList<Producto> productosFiltrados; // Lista filtrada para la búsqueda
+    private FilteredList<Producto> productosFiltrados;
 
     private String rutaImagen;
     private CategoriaDAO categoriaDAO = new CategoriaDAO();
@@ -74,12 +74,11 @@ public class ProductoController {
                 }
         );
 
-        // Configuración de la búsqueda con FilteredList y SortedList
+
         productosFiltrados = new FilteredList<>(productos, p -> true);
 
         txtBuscar.textProperty().addListener((observable, oldValue, newValue) -> {
             productosFiltrados.setPredicate(producto -> {
-                // Si el buscador está vacío, muestra todos los productos
                 if (newValue == null || newValue.trim().isEmpty()) {
                     return true;
                 }
