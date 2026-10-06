@@ -12,9 +12,9 @@ import java.util.List;
 
 public class CategoriaDAO {
 
-    public List<Categoria> listar() {
+    public List<Categoria> listar() throws SQLException {
         List<Categoria> lista = new ArrayList<>();
-        String sql = "SELECT id, nombre, activa FROM categoria"; // Removí el WHERE activa=true para ver todas en el panel de control
+        String sql = "SELECT id, nombre, activa FROM categoria ORDER BY id ASC";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -28,14 +28,11 @@ public class CategoriaDAO {
 
                 lista.add(categoria);
             }
-
-        } catch (SQLException e) {
-            System.err.println("Error al listar categorías: " + e.getMessage());
         }
         return lista;
     }
 
-    public boolean guardar(Categoria categoria) {
+    public boolean guardar(Categoria categoria) throws SQLException {
         String sql = "INSERT INTO categoria (nombre, activa) VALUES (?, ?)";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -46,14 +43,10 @@ public class CategoriaDAO {
 
             int filasAfectadas = ps.executeUpdate();
             return filasAfectadas > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Error al guardar la categoría: " + e.getMessage());
-            return false;
         }
     }
 
-    public boolean actualizar(Categoria categoria) {
+    public boolean actualizar(Categoria categoria) throws SQLException {
         String sql = "UPDATE categoria SET nombre = ?, activa = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -65,14 +58,10 @@ public class CategoriaDAO {
 
             int filasAfectadas = ps.executeUpdate();
             return filasAfectadas > 0;
-
-        } catch (SQLException e) {
-            System.err.println("Error al actualizar la categoría: " + e.getMessage());
-            return false;
         }
     }
 
-    public boolean eliminar(int id) {
+    public boolean eliminar(int id) throws SQLException {
         String sql = "DELETE FROM categoria WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
@@ -81,11 +70,48 @@ public class CategoriaDAO {
             ps.setInt(1, id);
             int filasAfectadas = ps.executeUpdate();
             return filasAfectadas > 0;
-
-        } catch (SQLException e) {
-
-            System.err.println("Error al eliminar la categoría (probablemente en uso): " + e.getMessage());
-            return false;
         }
+    }
+
+    public boolean existeNombre(String nombre, Integer excluirId) throws SQLException {
+        String sql;
+        if (excluirId == null) {
+            sql = "SELECT COUNT(*) FROM categoria WHERE LOWER(TRIM(nombre)) = LOWER(TRIM(?))";
+        } else {
+            sql = "SELECT COUNT(*) FROM categoria WHERE LOWER(TRIM(nombre)) = LOWER(TRIM(?)) AND id <> ?";
+        }
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, nombre.trim());
+            if (excluirId != null) {
+                ps.setInt(2, excluirId);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean tieneProductos(int categoriaId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM producto WHERE categoria_id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, categoriaId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
     }
 }

@@ -126,19 +126,41 @@
 
                 </VBox>
 
-                <!-- Acciones -->
+                <!-- Acciones CRUD -->
                 <VBox spacing="8.0">
 
-                    <Button fx:id="btnGuardar"
-                            text="Guardar"
-                            maxWidth="Infinity"
-                            onAction="#guardar"/>
+                    <HBox spacing="10.0">
+                        <children>
+                            <Button fx:id="btnGuardar"
+                                    maxWidth="Infinity"
+                                    onAction="#guardar"
+                                    text="Guardar"
+                                    HBox.hgrow="ALWAYS"/>
 
-                    <Button fx:id="btnEliminar"
-                            text="Eliminar"
-                            maxWidth="Infinity"
-                            style="-fx-background-color: #c0392b; -fx-text-fill: white;"
-                            onAction="#eliminar"/>
+                            <Button fx:id="btnActualizar"
+                                    maxWidth="Infinity"
+                                    onAction="#actualizar"
+                                    text="Modificar"
+                                    HBox.hgrow="ALWAYS"/>
+                        </children>
+                    </HBox>
+
+                    <HBox spacing="10.0">
+                        <children>
+                            <Button fx:id="btnEliminar"
+                                    maxWidth="Infinity"
+                                    style="-fx-background-color: #c0392b; -fx-text-fill: white;"
+                                    onAction="#eliminar"
+                                    text="Eliminar"
+                                    HBox.hgrow="ALWAYS"/>
+
+                            <Button fx:id="btnLimpiar"
+                                    maxWidth="Infinity"
+                                    onAction="#limpiar"
+                                    text="Limpiar"
+                                    HBox.hgrow="ALWAYS"/>
+                        </children>
+                    </HBox>
 
                     <Button fx:id="btnCerrar"
                             text="← Volver al Menú"
