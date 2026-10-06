@@ -91,7 +91,7 @@ public class ProductoController {
                 } else if (producto.getNombre() != null && producto.getNombre().toLowerCase().contains(lowerCaseFilter)) {
                     return true;
                 }
-                return false; // No coincide
+                return false;
             });
         });
 
